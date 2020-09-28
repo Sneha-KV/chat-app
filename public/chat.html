@@ -5,17 +5,20 @@
     <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
     <title>Chat-App</title>
     <link rel="icon" href="/img/favicon.png" >
-    <link rel="stylesheet" href="/css/styles.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
     <!-- <h1>Chat App</h1> -->
     <div class="chat">
-        <div class="chat__sidebar"></div>
+        <div id="side-bar" class="chat__sidebar"></div>
         <div class="chat__main">
-            <div id="messages" class="chat__messages"></div>
+            <button  id="goToBottom" title="Go to top" onclick="autoscroll('bottom')"><i class="fa fa-arrow-down" style="font-size:24px"></i></button>
+            <div id="messages" class="chat__messages" ></div>
+            <!-- onscroll="autoscroll()" -->
             <div class="compose">
                 <form id="message-form">
-                    <input type="text" placeholder="Message" name="message" class="message-input" id="msg">
+                    <input type="text" placeholder="Message" name="message" class="message-input" id="msg" autocomplete="off" required>
                     <button id="sendMsg" type="submit">Send</button>
                 </form> 
                 <button id="send-location">Send Location</button>
@@ -28,7 +31,7 @@
    <script id="message-template" type="text/html">
         <div class="message">
             <p>
-                <span class="message__name">User name</span>
+                <span class="message__name">{{username}}</span>
                 <span class="message__meta">{{createdAt}}</span>
             </p>
             <p>{{message}}</p>
@@ -39,12 +42,22 @@
    <script id="location-template" type="text/html">
         <div class="message">
             <p>
-                <span class="message__name">User name</span>
+                <span class="message__name">{{username}}</span>
                 <span class="message__meta">{{createdAt}}</span>
             </p>
             <p> <a class="location" target="_blank" href="{{url}}">My current Location</a></p>
         </div>
         
+   </script>
+   <!-- Side bar Template -->
+   <script id="sidebar-template" type="text/html">
+        <h2 class="room-title">{{room}}</h2>
+        <h3 class="list-title">Users</h3>
+        <ul class="users">
+            {{#users}}
+                <li>{{username}}</li>
+            {{/users}}
+        </ul>
    </script>
    <!-- Scripts needed  -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/3.0.1/mustache.min.js"></script>

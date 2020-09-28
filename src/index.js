@@ -6,6 +6,12 @@ const Filter = require('bad-words');
 
 // custom files
 const { generateMessage, generateLocationMessage } = require('./utils/messages');
+const {
+    addUser,
+    removeUser,
+    getUser,
+    getUsersInRoom
+} = require('./utils/users');
 
 
 const app = express();
@@ -20,28 +26,54 @@ app.use(express.static(publicDirectoryPath));
 
 io.on('connection', (socket)=> { // socket is the newly formed connection
     console.log('New client connected');
- 
-    socket.emit('message', generateMessage('Welcome!')); // emit is like trigger.Here we are triggering an event called message
-    socket.broadcast.emit('message', generateMessage('A new user has joined'));
+   
+    
+    socket.on('join',(options, callback) => {
+        const { error, user } = addUser({ id: socket.id, ...options });
 
+        if(error) {
+            return callback(error);
+        }
+        socket.join(user.room);
+        socket.emit('message', generateMessage('Admin','Welcome!')); // emit is like trigger.Here we are triggering an event called message
+        socket.to(user.room).broadcast.emit('message', generateMessage(`${user.username} has joined!`)); // give admin as user name if needed
+        io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)});
+        callback();
+        // socket.emit, socket.broadcast, io.emit
+        //socket.to().emit
+
+    })
     socket.on('sendMessage', (msg,callback) => {
         // when msg is sent, broadcast it to all connections
         const filter = new Filter();
         if(filter.isProfane(msg)) {
             return callback('Language!');
         }
-        io.emit('message', generateMessage(msg));
-        callback('Delivered!');
+        var user = getUser(socket.id); //get the details of user for room
+        if(user) {
+            io.to(user.room).emit('message', generateMessage(user.username, msg));
+            callback('Delivered!');
+        }
+        
     })
    
     socket.on('disconnect', ()=> {
-        io.emit('message',generateMessage('A user has left'));
+        user = removeUser(socket.id);
+        if(user) 
+            {
+                io.to(user.room).emit('message',generateMessage('Admin', `${user.username} has left`));
+                io.to(user.room).emit('roomData', {room: user.room, users: getUsersInRoom(user.room)}); // sending all users in that room
+            }
     })
     
     // receive location from user and send to others
     socket.on('sendLocation', (coords,callback) => {
-        io.emit('locationMessage',generateLocationMessage(`https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`));
-        callback();
+        var user = getUser(socket.id); //get the details of user for room
+        if(user) {
+            io.to(user.room).emit('locationMessage',generateLocationMessage(user.username,`https://www.google.com/maps?q=${coords.latitude},${coords.longitude}`));
+            callback();
+        }
+        
     })
    
     // socket.emit('countUpdated', count);
