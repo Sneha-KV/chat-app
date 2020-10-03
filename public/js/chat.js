@@ -8,11 +8,14 @@ $sendLocationButton = document.querySelector('#send-location');
 $messages = document.querySelector('#messages');
 $sidebar = document.querySelector('#side-bar');
 $goToBottomButton = document.querySelector('#goToBottom');
+$sendFile = document.querySelector('#sendFile');
 
 //Templates
 const messageTemp = document.querySelector('#message-template').innerHTML;
 const locationTemp = document.querySelector('#location-template').innerHTML;
 const sidebarTemp = document.querySelector('#sidebar-template').innerHTML;
+const imageTemp = document.querySelector('#image-template').innerHTML;
+const docTemp = document.querySelector('#doc-template').innerHTML;
 
 //Options
 const {username , room} = Qs.parse(location.search, { ignoreQueryPrefix : true})
@@ -49,6 +52,28 @@ socket.on('roomData', ({room, users}) => {
     });
     $sidebar.innerHTML = roomhtml
 })
+
+// receive Files from users
+socket.on('receiveFile', ({username, file, fileName, fileType, createdAt }) => {
+    var populateObj = {
+        username: username,
+        createdAt : moment(createdAt).format('h:mm a'),
+        fileName
+    }
+    if(fileType === 'application/pdf') {
+        populateObj.pdfsrc = file;
+        populateObj.Downloadtext = "Download "+fileName;
+        fileTemp = docTemp;
+    } else {
+        populateObj.src = file;
+        fileTemp = imageTemp;
+    }
+    const html = Mustache.render(fileTemp,populateObj);
+    $messages.insertAdjacentHTML('beforeend',html);
+    autoscroll();
+
+})
+
 
 // Scroll issue - Scroll to the bottom, if user receives a new message and user is at the last msg
 // But if user is not at the end, he is seeing the chat history, dont scroll down
@@ -115,7 +140,26 @@ $sendLocationButton.addEventListener('click', ()=> {
    })
 })
 
+// Upload file
+// $sendFile.bind('change', function(e){
+//     var data = e.originalEvent.target.files[0];
+//     readThenSendFile(data);      
+// });
 
+$sendFile.addEventListener('change',(event) => {
+    var data = event.target.files[0];
+    // event.target.files[0].type
+    var reader = new FileReader();
+    reader.onload = function(evt){
+        var msg ={};
+        msg.username = username;
+        msg.file = evt.target.result;
+        msg.fileName = data.name;
+        msg.fileType = data.type;
+        socket.emit('uploadFile', msg);
+    };
+    reader.readAsDataURL(data);
+})
 
 socket.emit('join', {username, room}, (error) => {
     if(error) {

@@ -10,7 +10,7 @@ html {
     font-size: 16px;
 }
 
-input {
+.inputField {
     font-size: 14px;
 }
 
@@ -31,13 +31,13 @@ label {
     color: #777;
 }
 
-input {
+.inputField {
     border: 1px solid #eeeeee;
     padding: 12px;
     outline: none;
 }
 
-button {
+button, .file__input {
     cursor: pointer;
     padding: 12px;
     background: #7C5CBF;
@@ -78,7 +78,7 @@ button:disabled {
     width: 100%;
 }
 
-.centered-form input {
+.centered-form .inputField {
     margin-bottom: 16px;
     width: 100%;
 }
@@ -148,7 +148,7 @@ button:disabled {
     margin-right: 16px;
 }
 
-.compose input {
+.compose .inputField {
     border: 1px solid #eeeeee;
     width: 100%;
     padding: 12px;
@@ -200,3 +200,44 @@ button:disabled {
   #goToBottom:hover {
     background-color: #555;
   }
+
+  /* Upload image button style */
+
+#sendFile {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.file__input + label {
+    font-size: 23px;
+    color: white;
+    background-color: #7C5CBF;
+    display: inline-block;
+    transition: background .3s ease;
+    cursor: pointer;
+    margin: 0 15px;
+    padding: 5px 16px;
+
+}
+
+.file__input:focus + label,
+.file__input + label:hover {
+    background-color: #6b47b8;
+}
+
+.inputfile:focus + label {
+	outline: 1px dotted #000;
+	outline: -webkit-focus-ring-color auto 5px;
+}
+
+.inputfile + label * {
+	pointer-events: none;
+}
+
+img[src=""], embed[src=""] {
+    display: none;
+}

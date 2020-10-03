@@ -5,7 +5,7 @@ const http = require('http');
 const Filter = require('bad-words');
 
 // custom files
-const { generateMessage, generateLocationMessage } = require('./utils/messages');
+const { generateMessage, generateLocationMessage, generateFileMessage } = require('./utils/messages');
 const {
     addUser,
     removeUser,
@@ -76,6 +76,22 @@ io.on('connection', (socket)=> { // socket is the newly formed connection
         
     })
    
+    // receive files from User
+    socket.on('uploadFile', (msg) => {
+        console.log('received base64 file from' + msg.username);
+        console.log(getUser(socket.id));
+        // socket.username = msg.username;
+        var user = getUser(socket.id);
+        // // socket.broadcast.emit('base64 image', //exclude sender
+       
+        io.to(user.room).emit('receiveFile',   generateFileMessage(user.username, msg.file, msg.fileName,msg.fileType));//include sender
+    
+    })
+
+
+
+
+
     // socket.emit('countUpdated', count);
     // socket.on('increment', ()=> {
     //     count++;
