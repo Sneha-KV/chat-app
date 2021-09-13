@@ -1,5 +1,5 @@
 # chat-app
-Link: https://chat-rooms-skv.herokuapp.com/
-Create a chat room, and chat with the users
+Application: https://chat-rooms-skv.herokuapp.com/
+A chat room application where anyone can create a room and text each other or add as many people as they want in the chat room.
 
-Using NodeJs and SocketIo
+This application was built using JavaScript, NodeJs, SocketIo and Express
